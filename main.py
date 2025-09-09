@@ -12,6 +12,7 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 
+
 # Config
 config_path = r'D:\Report_dictionary\Report_Dictionary.xlsx'
 mixed_sheet = 'Mixed_Reports'
@@ -35,6 +36,8 @@ if "filters_loaded" not in st.session_state:
     if cookie_key in cookies:
         saved_filter = json.loads(cookies[cookie_key])
         st.session_state["users_filter"] = saved_filter.get("users_filter", [])
+    else:
+        st.session_state["users_filter"] = [] 
     st.session_state["filters_loaded"] = True  # Đánh dấu đã load cookie
 
 
@@ -69,7 +72,7 @@ with col3:
 with col4:
     users_filter = st.multiselect("Intended Users", 
                                   options=get_unique_elements(report_list["Intended Users"]), 
-                                  default=st.session_state.get("users_filter", []),
+                                #   default=st.session_state.get("users_filter"),
                                   key="users_filter")
 with col5:
     update_filter = st.multiselect("Has Update Warning", options=['Yes', 'No'])
