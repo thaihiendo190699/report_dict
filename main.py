@@ -1,9 +1,11 @@
+import logging
+logging.getLogger("streamlit.runtime.caching").setLevel(logging.ERROR)
 import streamlit as st
 import pandas as pd
 import numpy as np
 import os
 import re
-from custom_function import  get_reports, open_file_or_folder, get_unique_elements
+from custom_function import  get_reports, open_file_or_folder, get_unique_elements, find_gid
 from pywinauto import Application
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from datetime import datetime, timedelta
@@ -13,8 +15,13 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+# GID
+GID = find_gid()
+
 # Config
-config_path = r'D:\Report_dictionary\Report_Dictionary.xlsx'
+config_path = r"C:\Users\*GID*\OneDrive - Sony\Group Archive, SEV's files - 4. STRATEGIC PLANNING OFFICE\1. SHARE INTERNAL\Report_Dictionary.xlsx"
+config_path = config_path.replace("*GID*", GID)
+
 mixed_sheet = 'Mixed_Reports'
 structured_sheet = 'Structured_Reports'
 setting_sheet = 'Settings'
@@ -48,18 +55,21 @@ st.markdown("""
     <style>
         .block-container {
             padding-top: 1.5rem;
-        }
+        },
+        .stAlert {display: none;}
     
 }
     </style>
 """, unsafe_allow_html=True)
+
+
 st.header("Report Dictionary", divider=True)
 
 
 #Load Report List
 with st.spinner("Loading..."):
-    report_list = get_reports(config_path=config_path, s_sheet_name=structured_sheet, m_sheet_name=mixed_sheet, setting_sheet=setting_sheet)
-
+    report_list = get_reports(config_path=config_path, s_sheet_name=structured_sheet, m_sheet_name=mixed_sheet, setting_sheet=setting_sheet, gid=GID)
+    
 
 # Filter
 col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 2, 2])
@@ -92,7 +102,8 @@ if json.loads(cookies[cookie_key]).get("users_filter", []) != users_filter:
 filtered_report_list = report_list
 
 if search_tags:
-    pattern = r"\b" + re.escape(search_tags.lower()) + r"\b"
+    # pattern = r"\b" + re.escape(search_tags.lower()) + r"\b"
+    pattern = rf"(?<![A-Za-z]){re.escape(search_tags.lower())}(?![A-Za-z])"
     filtered_report_list = filtered_report_list[
         filtered_report_list[['Report Name', 'Purpose', 'Extra Description']]
         .apply(lambda row: bool(re.search(pattern, ' '.join(row.astype(str)).lower())), axis=1)

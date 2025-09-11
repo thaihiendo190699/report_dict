@@ -1,0 +1,7 @@
+[logger]
+# Tắt hết warning/ info log, chỉ hiện error
+level = "error"
+
+[client]
+# Tắt cảnh báo deprecated
+showErrorDetails = false
