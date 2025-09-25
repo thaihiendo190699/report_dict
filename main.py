@@ -197,7 +197,7 @@ else:
 
 
 
-# Hiển thị số lượng báo cáo
+# Hiển thị số lượng báo cáo x
     num_reports = filtered_report_list.shape[0]
     st.markdown(f"**Showing {num_reports} report(s).**")
 
