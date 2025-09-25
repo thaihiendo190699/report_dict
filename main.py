@@ -41,7 +41,7 @@ cookie_key = "filters"
 
 if "filters_loaded" not in st.session_state:
     if cookie_key in cookies:
-        saved_filter = json.loads(cookies[cookie_key])
+        saved_filter = json.loads(cookies.get(cookie_key))
         st.session_state["users_filter"] = saved_filter.get("users_filter", [])
     else:
         st.session_state["users_filter"] = [] 
@@ -94,9 +94,10 @@ st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
 
 # Chỉ save cookie khi có thay đổi thật sự
-if json.loads(cookies[cookie_key]).get("users_filter", []) != users_filter:
-    cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
-    cookies.save()
+if cookie_key in cookies:
+    if json.loads(cookies[cookie_key]).get("users_filter", []) != users_filter:
+        cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
+        cookies.save()
     
 # Filter Report List
 filtered_report_list = report_list
@@ -168,7 +169,7 @@ else:
     }
     }
 
-    grid_response = AgGrid(filtered_report_list, gridOptions=grid_options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme="balham", custom_css=custom_css)
+    grid_response = AgGrid(filtered_report_list, gridOptions=grid_options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme="balham", custom_css=custom_css, height=600)
 
 
     selected = grid_response["selected_rows"]
