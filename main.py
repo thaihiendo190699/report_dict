@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 import re
-from custom_function import  get_reports, open_file_or_folder, get_unique_elements, find_gid
+from custom_function import  open_file_or_folder, get_unique_elements, get_report
 from pywinauto import Application
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from datetime import datetime, timedelta
@@ -15,16 +15,11 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-# GID
-GID = find_gid()
 
 # Config
-config_path = r"C:\Users\*GID*\OneDrive - Sony\Group Archive, SEV's files - 4. STRATEGIC PLANNING OFFICE\1. SHARE INTERNAL\Report_Dictionary.xlsx"
-config_path = config_path.replace("*GID*", GID)
+config_path = r"Z:\CONSUMER SALES\Strategic Planning\Working\Report Dictionary\Report_Dictionary.xlsx"
+sheet = 'Reports'
 
-mixed_sheet = 'Mixed_Reports'
-structured_sheet = 'Structured_Reports'
-setting_sheet = 'Settings'
 
 # Khởi tạo cookie manager
 cookies = EncryptedCookieManager(
@@ -68,11 +63,11 @@ st.header("Report Dictionary", divider=True)
 
 #Load Report List
 with st.spinner("Loading..."):
-    report_list = get_reports(config_path=config_path, s_sheet_name=structured_sheet, m_sheet_name=mixed_sheet, setting_sheet=setting_sheet, gid=GID)
-    
+    report_list = get_report(config_path, sheet)
+
 
 # Filter
-col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 2, 2])
+col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 2])
 with col1:
     search_tags = st.text_input("🔎", placeholder="Search...")
 with col2:
@@ -85,8 +80,6 @@ with col4:
                                 #   default=st.session_state.get("users_filter"),
                                   key="users_filter")
 with col5:
-    update_filter = st.multiselect("Has Update Warning", options=['Yes', 'No'])
-with col6:
     type_filter = st.multiselect("Type", options=get_unique_elements(report_list["Type"]), default="Report")
 
 st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
@@ -106,7 +99,7 @@ if search_tags:
     # pattern = r"\b" + re.escape(search_tags.lower()) + r"\b"
     pattern = rf"(?<![A-Za-z]){re.escape(search_tags.lower())}(?![A-Za-z])"
     filtered_report_list = filtered_report_list[
-        filtered_report_list[['Report Name', 'Purpose', 'Extra Description']]
+        filtered_report_list[['Report Name', 'Purpose']]
         .apply(lambda row: bool(re.search(pattern, ' '.join(row.astype(str)).lower())), axis=1)
     ]
 if cate_filter:
@@ -118,9 +111,6 @@ if object_filter:
 if users_filter:
     users_pattern = '|'.join(users_filter)
     filtered_report_list = filtered_report_list[filtered_report_list["Intended Users"].str.contains(users_pattern, case=False, na=False) | (filtered_report_list["Category"].str.upper() == "ALL")]
-if update_filter:
-    update_pattern = '|'.join(update_filter)
-    filtered_report_list = filtered_report_list[filtered_report_list["Has Update Warning"].str.contains(update_pattern, case=False, na=False)]
 if type_filter:
     type_pattern = '|'.join(type_filter)
     filtered_report_list = filtered_report_list[filtered_report_list["Type"].str.contains(type_pattern, case=False, na=False)]
@@ -128,7 +118,7 @@ if filtered_report_list.empty:
     st.warning("⚠️ No matching reports found. Please adjust your filters.")
 else:
 
-    filtered_report_list = filtered_report_list[['Report Name', 'Purpose', 'Category', 'Focused Objects', 'Time Dimension', 'Update Frequency', 'Update Time', 'PIC', 'Extra Description', 'file_link']]
+    filtered_report_list = filtered_report_list[['Report Name', 'Purpose', 'Category', 'Focused Objects', 'Time Dimension', 'Update Frequency', 'PIC', 'file_link', 'folder_link']]
     gb = GridOptionsBuilder.from_dataframe(filtered_report_list)
     gb.configure_selection(selection_mode="single", use_checkbox=False)  # Không checkbox
     
@@ -181,16 +171,16 @@ else:
         
         with info_placeholder.container():
             file_path = selected.iloc[0]['file_link']
-            
-            col1, col2, col3, _ = st.columns([3,1,1, 4], gap="small")
+            folder_path = selected.iloc[0]['folder_link']
+            col1, col2, col3, _ = st.columns([3,1,1,4], gap="small")
             with col1:
                 st.write(f"Selected report: **{selected.iloc[0]['Report Name']}**")
             with col2:
-                if st.button('Open File  ', key=f'file_{0}'):
+                if st.button('Open File', key=f'file_{0}'):
                     open_file_or_folder(file_path)
             with col3:
                 if st.button('Open Folder', key=f'folder_{0}'):
-                    open_file_or_folder(file_path, False)
+                    open_file_or_folder(folder_path)
                     
     else:
         info_placeholder.info("Select a report row to open file/folder.")
