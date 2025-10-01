@@ -7,7 +7,7 @@ import os
 import re
 from custom_function import get_unique_elements, get_report
 from pywinauto import Application
-from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode,JsCode
 from datetime import datetime, timedelta
 from streamlit_cookies_manager import EncryptedCookieManager
 import json
@@ -17,7 +17,8 @@ warnings.filterwarnings("ignore")
 
 
 # Config
-config_path = r"Z:\CONSUMER SALES\Strategic Planning\Working\Report Dictionary\Report_Dictionary.xlsx"
+# config_path = r"Z:\CONSUMER SALES\Strategic Planning\Working\Report Dictionary\Report_Dictionary.xlsx"
+config_path=r'Report_Dictionary.xlsx'
 sheet = 'Reports'
 
 
@@ -124,37 +125,61 @@ else:
 
     filtered_report_list = filtered_report_list[['Report Name', 'Purpose', 'Category', 'Focused Objects', 'Time Dimension', 'Update Frequency', 'PIC', 'file_link', 'folder_link']]
     gb = GridOptionsBuilder.from_dataframe(filtered_report_list)
+    # gb.configure_default_column(resizable=True, flex=1)
     gb.configure_selection(selection_mode="single", use_checkbox=False)  # Không checkbox
     
     gb.configure_column("file_link", hide=True)  # ẨN cột Path
     gb.configure_column("folder_link", hide=True)  # ẨN cột Path
     # Wrap text cho các cột dài
 
-    for col in filtered_report_list.columns:
-        gb.configure_column(
-            col,
-            headerClass="bold-header",
-            cellStyle={
-                "display": "flex",
-                "alignItems": "center",        
-                "justifyContent": "flex-start", 
-                "paddingLeft": "5px",
-                "paddingRight": "5px", 
-                "paddingTop": "5px",
-                "paddingBottom": "5px",       
-                "lineHeight": "1.2", 
-                "whiteSpace": "normal"           
-            },
-            maxWidth=300,
-            suppressSizeToFit=True,
-            autoHeight=True
+    gb.configure_default_column(
+        headerClass="bold-header",
+        cellStyle={
+            "display": "flex",
+            "alignItems": "center",        
+            "justifyContent": "flex-start", 
+            "paddingLeft": "5px",
+            "paddingRight": "5px", 
+            "paddingTop": "5px",
+            "paddingBottom": "5px",       
+            "lineHeight": "1.2", 
+            "whiteSpace": "normal"           
+        },
+        # maxWidth=300,
+        flex=1,
+        resizable=True,      
+        # suppressSizeToFit=True,
+        autoHeight=True
         )
-
+            
+    for col in filtered_report_list.columns:
+        if col=='Report Name':
+            gb.configure_column(
+                col,
+                # flex=2,
+                minWidth=200
+            )
+        elif col=='Purpose':
+            gb.configure_column(
+                col,
+                # flex=2,
+                minWidth=300
+            )
+        else:
+            gb.configure_column(
+                col,
+                # flex=1,
+                minWidth=120
+            )
 
     gb.configure_column("Report Name", pinned="left")
     grid_options = gb.build()
 
-
+    grid_options["onGridSizeChanged"] = JsCode("""
+    function(params) {
+        params.api.sizeColumnsToFit();
+    }
+    """)
 
     # Tạo chỗ trống để update info sau
     info_placeholder = st.empty()   
@@ -166,8 +191,16 @@ else:
     }
     }
 
-    grid_response = AgGrid(filtered_report_list, gridOptions=grid_options, update_mode=GridUpdateMode.SELECTION_CHANGED, theme="balham", custom_css=custom_css, height=600)
-
+    grid_response=AgGrid(
+        filtered_report_list,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        theme="balham",
+        custom_css=custom_css,
+        height=600,
+        fit_columns_on_grid_load=True,
+        allow_unsafe_jscode=True
+    )
 
     selected = grid_response["selected_rows"]
 
