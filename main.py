@@ -40,9 +40,12 @@ if "filters_loaded" not in st.session_state:
         st.session_state["users_filter"] = saved_filter.get("users_filter", [])
     else:
         st.session_state["users_filter"] = [] 
+        x = {
+            "users_filter": st.session_state["users_filter"]
+            }
+        cookies[cookie_key] = json.dumps(x)
     st.session_state["filters_loaded"] = True  # Đánh dấu đã load cookie
-
-
+    
 # Layout
 st.set_page_config(layout="wide")
 
@@ -87,12 +90,12 @@ st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
 
 # Chỉ save cookie khi có thay đổi thật sự
-
 if cookie_key in cookies:
     if json.loads(cookies.get(cookie_key)).get("users_filter", []) != users_filter:
         cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
         cookies.save()
-    
+
+
 # Filter Report List
 filtered_report_list = report_list
 
