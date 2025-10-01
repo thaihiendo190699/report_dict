@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 import re
-from custom_function import  open_file_or_folder, get_unique_elements, get_report
+from custom_function import get_unique_elements, get_report
 from pywinauto import Application
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from datetime import datetime, timedelta
@@ -87,8 +87,9 @@ st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
 
 # Chỉ save cookie khi có thay đổi thật sự
+
 if cookie_key in cookies:
-    if json.loads(cookies[cookie_key]).get("users_filter", []) != users_filter:
+    if json.loads(cookies.get(cookie_key)).get("users_filter", []) != users_filter:
         cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
         cookies.save()
     
@@ -141,7 +142,7 @@ else:
                 "lineHeight": "1.2", 
                 "whiteSpace": "normal"           
             },
-            maxWidth=250,
+            maxWidth=300,
             suppressSizeToFit=True,
             autoHeight=True
         )
@@ -173,15 +174,19 @@ else:
         with info_placeholder.container():
             file_path = selected.iloc[0]['file_link']
             folder_path = selected.iloc[0]['folder_link']
-            col1, col2, col3, _ = st.columns([3,1,1,4], gap="small")
+            col1, col2, col3, _ = st.columns([2.5,1,1,3], gap="small")
             with col1:
                 st.write(f"Selected report: **{selected.iloc[0]['Report Name']}**")
             with col2:
-                if st.button('Open File', key=f'file_{0}'):
-                    open_file_or_folder(file_path)
+                st.markdown(
+                        f'<a href="{file_path}" target="_blank"><button style="background-color: white; color: #5a5a5a; border: 0.5px solid #0d96fd;  border-radius: 6px; cursor: pointer;font-family: Arial, sans-serif;padding: 7px 20px;">Open File</button></a>',
+                        unsafe_allow_html=True
+                )
             with col3:
-                if st.button('Open Folder', key=f'folder_{0}'):
-                    open_file_or_folder(folder_path)
+                st.markdown(
+                        f'<a href="{folder_path}" target="_blank"><button style="background-color: white; color: #5a5a5a; border: 0.5px solid #0d96fd;  border-radius: 6px; cursor: pointer;font-family: Arial, sans-serif;padding: 7px 20px;">Open Folder</button></a>',
+                        unsafe_allow_html=True
+                )
                     
     else:
         info_placeholder.info("Select a report row to open file/folder.")
