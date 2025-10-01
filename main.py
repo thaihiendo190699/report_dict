@@ -123,6 +123,7 @@ else:
     gb.configure_selection(selection_mode="single", use_checkbox=False)  # Không checkbox
     
     gb.configure_column("file_link", hide=True)  # ẨN cột Path
+    gb.configure_column("folder_link", hide=True)  # ẨN cột Path
     # Wrap text cho các cột dài
 
     for col in filtered_report_list.columns:
