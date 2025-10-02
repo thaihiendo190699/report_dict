@@ -51,14 +51,13 @@ def truncate_table(table_name,database_name=database_name,server_name=r'43.94.1.
         connection.execute(text(f"TRUNCATE TABLE [{table_name}]"))
         connection.commit()
 
-def get_data_from_server(query,driver=r'SQL Server',server=r'43.94.1.64\sqlserver01',database=database_name,username=r'user_stp1',password=quote_plus('Userstp@123')):
+def get_data_from_server(query,driver=r'SQL Server',server=r'43.94.1.64\sqlserver01',database=database_name,username=r'user_stp1',password='Userstp@123'):
     with pyodbc.connect(f"DRIVER={driver};"
                         f"SERVER={server};"
                         f"DATABASE={database};"
-                        f"Trusted_Connection=yes;"
                         f"UID={username};"
                         f"PWD={password};") as conn:
-
+ 
         # Load data into a pandas DataFrame
         df = pd.read_sql(query, conn)
     return df
