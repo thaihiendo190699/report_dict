@@ -15,13 +15,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-
-# Config
-# config_path = r"Z:\CONSUMER SALES\Strategic Planning\Working\Report Dictionary\Report_Dictionary.xlsx"
-config_path=r'Report_Dictionary.xlsx'
-sheet = 'Reports'
-
-
 # Khởi tạo cookie manager
 cookies = EncryptedCookieManager(
     prefix="myapp/",
@@ -67,7 +60,7 @@ st.header("Report Dictionary", divider=True)
 
 #Load Report List
 with st.spinner("Loading..."):
-    report_list = get_report(config_path, sheet)
+    report_list = get_report()
 
 
 # Filter
@@ -88,14 +81,11 @@ with col5:
 
 st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
-
-
 # Chỉ save cookie khi có thay đổi thật sự
 if cookie_key in cookies:
     if json.loads(cookies.get(cookie_key)).get("users_filter", []) != users_filter:
         cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
         cookies.save()
-
 
 # Filter Report List
 filtered_report_list = report_list
