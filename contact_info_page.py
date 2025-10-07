@@ -1,6 +1,40 @@
 import streamlit as st
 from PIL import Image
 
+ # --- Cache image loading to speed up ---
+@st.cache_data
+def load_image(path,size=(300,300)):
+    # return Image.open(path)
+    img = Image.open(path)
+    img.thumbnail(size)
+    return img
+
+def display_info(cols,col_index,photo,name,email,role=''):
+    with cols[col_index]:
+        img = load_image(photo)
+        st.image(img, use_column_width=True)
+        if role:
+            st.markdown(
+                f"""
+                <div style='text-align: center;'>
+                    <strong>{name}</strong><br>
+                    {role}<br>
+                    <a href='mailto:{email}'>{email}</a>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+            f"""
+            <div style='text-align: center;'>
+                <strong>{name}</strong><br>
+                <a href='mailto:{email}'>{email}</a>
+            </div>
+            """,
+            unsafe_allow_html=True
+            )
+
 def contact_info():
     st.title("🪪 Contact Info")
 
@@ -38,57 +72,8 @@ def contact_info():
         }
     ]
 
-    # --- Cache image loading to speed up ---
-    @st.cache_data
-    def load_image(path,size=(300,300)):
-        # return Image.open(path)
-        img = Image.open(path)
-        img.thumbnail(size)
-        return img
-        # return load_image_fixed(path, size=(300, 300))
-
     # --- Display Members in Columns ---
     with st.spinner("Loading team members..."):
-        cols = st.columns(5)  # 3 columns
-        for i, member in enumerate(team[:3]):
-            with cols[i+1]:
-                img = load_image(member["photo"])
-                st.image(img, use_column_width=True)
-                if member['role']:
-                    st.markdown(
-                        f"""
-                        <div style='text-align: center;'>
-                            <strong>{member['name']}</strong><br>
-                            {member['role']}<br>
-                            <a href='mailto:{member['email']}'>{member['email']}</a>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                else:
-                     st.markdown(
-                        f"""
-                        <div style='text-align: center;'>
-                            <strong>{member['name']}</strong><br>
-                            <a href='mailto:{member['email']}'>{member['email']}</a>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-            
-        cols2 = st.columns(4)
-        for i, member in enumerate(team[3:5]):
-            with cols2[i+1]:
-                img = load_image(member["photo"])
-                st.image(img, use_column_width=True)
-                st.markdown(
-                    f"""
-                    <div style='text-align: center;'>
-                        <strong>{member['name']}</strong><br>
-                        {member['role']}<br>
-                        <a href='mailto:{member['email']}'>{member['email']}</a>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+        for index, member in enumerate(team,start=0):
+            cols = st.columns(3)  # 3 columns
+            display_info(cols,1,member["photo"],member['name'],member['email'],member['role'])
