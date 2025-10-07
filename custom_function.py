@@ -71,9 +71,11 @@ def upload_report_dictionary_config(file_path,sheet_name):
     dtype={}
     for column in data.columns:
         dtype.setdefault(column,types.Unicode())
+    table_name=r'REPORT_DICTIONARY_CONFIG'
+    truncate_table(table_name)
     record_dataframe_to_sql(data,
                             dtype=dtype,
                             table_name=r'REPORT_DICTIONARY_CONFIG',
-                            if_exists='replace'
+                            if_exists='append'
                             )
 
