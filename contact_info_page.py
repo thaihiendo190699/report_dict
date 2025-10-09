@@ -43,7 +43,7 @@ def display_info(cols, col_index, photo, name, email, role=''):
                 f"""
                 <div style='display:flex; align-items:center; gap:15px;'>
                     <img src='data:image/png;base64,{image_to_base64(img)}'
-                        style='width:80px; height:80px; border-radius:5%; object-fit:cover;'/>
+                        style='width:120px; height:140px; border-radius:5%; object-fit:cover;'/>
                     <div>
                         <strong>{name}</strong><br>
                         {role}<br>
@@ -58,7 +58,7 @@ def display_info(cols, col_index, photo, name, email, role=''):
                 f"""
                 <div style='display:flex; align-items:center; gap:15px;'>
                     <img src='data:image/png;base64,{image_to_base64(img)}'
-                        style='width:80px; height:80px; border-radius:5%; object-fit:cover;'/>
+                        style='width:120px; height:140px; border-radius:5%; object-fit:cover;'/>
                     <div>
                         <strong>{name}</strong><br>
                         <a href='mailto:{email}'>{email}</a>

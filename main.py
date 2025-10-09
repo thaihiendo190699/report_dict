@@ -8,6 +8,10 @@ import streamlit as st
 
 # st.logo('snp_logo.png',size="large")
 # Initialize the selected page
+st.set_page_config(page_title="Strategic Planning",
+                    layout="wide",
+                    page_icon="🔥")
+
 if "page" not in st.session_state:
     st.session_state.page = "report_dictionary"
 
