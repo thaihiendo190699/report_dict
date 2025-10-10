@@ -112,7 +112,7 @@ def report_dictionary():
         filtered_report_list = filtered_report_list[filtered_report_list["Focused Objects"].str.contains(object_pattern, case=False, na=False)]
     if users_filter:
         users_pattern = '|'.join(users_filter)
-        filtered_report_list = filtered_report_list[filtered_report_list["Intended Users"].str.contains(users_pattern, case=False, na=False) | (filtered_report_list["Category"].str.upper() == "ALL")]
+        filtered_report_list = filtered_report_list[filtered_report_list["Intended Users"].str.contains(users_pattern, case=False, na=False) | (filtered_report_list["Intended Users"].str.upper() == "ALL")]
     if type_filter:
         type_pattern = '|'.join(type_filter)
         filtered_report_list = filtered_report_list[filtered_report_list["Type"].str.contains(type_pattern, case=False, na=False)]
