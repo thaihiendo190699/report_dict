@@ -63,7 +63,8 @@ def report_dictionary():
     #Load Report List
     with st.spinner("Loading..."):
         report_list = get_report()
-
+        
+        
 
     # Filter
     col1, col2, col3, col4, col5, col6 = st.columns([2, 2, 2, 2, 2, 2])
@@ -212,15 +213,15 @@ def report_dictionary():
                     st.write(f"Selected report: **{selected.iloc[0]['Report Name']}**")
                 with col2:
                     st.markdown(
-                            f'<a href="{file_path}" target="_blank"><button style="background-color: white; color: #5a5a5a; border: 0.5px solid #0d96fd;  border-radius: 6px; cursor: pointer;font-family: Arial, sans-serif;padding: 7px 20px;">Open File</button></a>',
-                            unsafe_allow_html=True
-                    )
-                with col3:
-                    st.markdown(
                             f'<a href="{folder_path}" target="_blank"><button style="background-color: white; color: #5a5a5a; border: 0.5px solid #0d96fd;  border-radius: 6px; cursor: pointer;font-family: Arial, sans-serif;padding: 7px 20px;">Open Folder</button></a>',
                             unsafe_allow_html=True
                     )
-                        
+                with col3:
+                    if file_path is not None and file_path != "":
+                        st.markdown(
+                                f'<a href="{file_path}" target="_blank"><button style="background-color: white; color: #5a5a5a; border: 0.5px solid #0d96fd;  border-radius: 6px; cursor: pointer;font-family: Arial, sans-serif;padding: 7px 20px;">Open File</button></a>',
+                                unsafe_allow_html=True
+                        )                        
         else:
             info_placeholder.info("Select a report row to open file/folder.")
 
