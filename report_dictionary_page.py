@@ -1,4 +1,4 @@
-
+﻿
 
 import logging
 logging.getLogger("streamlit.runtime.caching").setLevel(logging.ERROR)
@@ -32,16 +32,38 @@ def report_dictionary():
     cookie_key = "filters"
 
     if "filters_loaded" not in st.session_state:
-        if cookie_key in cookies:
-            saved_filter = json.loads(cookies.get(cookie_key))
-            st.session_state["users_filter"] = saved_filter.get("users_filter", [])
-        else:
-            st.session_state["users_filter"] = [] 
-            x = {
-                "users_filter": st.session_state["users_filter"]
+
+        try:
+            if cookie_key in cookies:
+
+                saved_filter = json.loads(
+                    cookies.get(cookie_key)
+                )
+
+                st.session_state["users_filter"] = saved_filter.get(
+                    "users_filter",
+                    []
+                )
+
+            else:
+                st.session_state["users_filter"] = []
+
+                x = {
+                    "users_filter": st.session_state["users_filter"]
                 }
-            cookies[cookie_key] = json.dumps(x)
-        st.session_state["filters_loaded"] = True  # Đánh dấu đã load cookie
+
+                cookies[cookie_key] = json.dumps(x)
+
+                try:
+                    cookies.save()
+                except Exception:
+                    pass
+
+        except Exception:
+            # Cookie lỗi thì bỏ qua
+            st.session_state["users_filter"] = []
+
+        st.session_state["filters_loaded"] = True
         
     # Layout
     st.set_page_config(layout="wide")
@@ -87,10 +109,44 @@ def report_dictionary():
     st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
 
     # Chỉ save cookie khi có thay đổi thật sự
-    if cookie_key in cookies:
-        if json.loads(cookies.get(cookie_key)).get("users_filter", []) != users_filter:
-            cookies[cookie_key] = json.dumps({"users_filter": st.session_state["users_filter"]})
-            cookies.save()
+    try:
+
+        if cookie_key in cookies:
+
+            saved_filter = json.loads(
+                cookies.get(cookie_key)
+            )
+
+            old_users_filter = saved_filter.get(
+                "users_filter",
+                []
+            )
+
+            if old_users_filter != users_filter:
+
+                cookies[cookie_key] = json.dumps({
+                    "users_filter": users_filter
+                })
+
+                try:
+                    cookies.save()
+                except Exception:
+                    pass
+
+        else:
+
+            cookies[cookie_key] = json.dumps({
+                "users_filter": users_filter
+            })
+
+            try:
+                cookies.save()
+            except Exception:
+                pass
+
+    except Exception:
+        # Cookie có vấn đề thì bỏ qua hoàn toàn
+        pass
 
     # Filter Report List
     filtered_report_list = report_list
